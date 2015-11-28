@@ -3,58 +3,58 @@ __author__ = 'IS'
 from api.tools import DBconnect
 
 
-def save_user(email, username, about, name, optional):
+def save_user(connect,email, username, about, name, optional):
     isAnonymous = 0
     if "isAnonymous" in optional:
         isAnonymous = optional["isAnonymous"]
-    try:
-        DBconnect.update_query(
+    
+    str = DBconnect.update_query(connect,
                 'INSERT INTO user (email, about, name, username, isAnonymous) VALUES (%s, %s, %s, %s, %s)',
                 (email, about, name, username, isAnonymous, ))
-        user = DBconnect.select_query('select email, about, isAnonymous, id, name, username FROM user WHERE email = %s',
+    if str == "Ituser":
+        raise Exception("5")
+    user = DBconnect.select_query(connect,'select email, about, isAnonymous, id, name, username FROM user WHERE email = %s',
                            (email, ))
-    except Exception as e:
-        raise Exception(e.message)
 
     return user_format(user)
 
 
-def update_user(email, about, name):
-    DBconnect.update_query('UPDATE user SET email = %s, about = %s, name = %s WHERE email = %s',
+def update_user(connect,email, about, name):
+    DBconnect.update_query(connect,'UPDATE user SET email = %s, about = %s, name = %s WHERE email = %s',
                            (email, about, name, email, ))
-    return details(email)
+    return details(connect,email)
 
 
-def followers(email, type):
+def followers(connect,email, type):
     where = "followee"
     if type == "followee":
         where = "follower"
-    f_list = DBconnect.select_query(
+    f_list = DBconnect.select_query(connect,
         "SELECT " + type + " FROM follower WHERE " + where + " = %s ", (email, )
     )
     return tuple2list(f_list)
 
 
-def details(email):
-    user = DBconnect.select_query('select email, about, isAnonymous, id, name, username FROM user WHERE email = %s LIMIT 1;', (email, ))
+def details(connect,email):
+    user = DBconnect.select_query(connect,'select email, about, isAnonymous, id, name, username FROM user WHERE email = %s LIMIT 1;', (email, ))
     user = user_format(user)
     if user is None:
         raise Exception("No user with email " + email)
-    f_list = DBconnect.select_query(
+    f_list = DBconnect.select_query(connect,
         "SELECT follower FROM follower WHERE followee = %s ", (email, )
     )
     user["followers"] = tuple2list(f_list)
-    f_list = DBconnect.select_query(
+    f_list = DBconnect.select_query(connect,
         "SELECT followee FROM follower WHERE follower = %s ", (email, )
     )
     user["following"] = tuple2list(f_list)
-    user["subscriptions"] = user_subscriptions(email)
+    user["subscriptions"] = user_subscriptions(connect,email)
     return user
 
 
-def user_subscriptions(email):
+def user_subscriptions(connect,email):
     s_list = []
-    subscriptions = DBconnect.select_query('select thread FROM subscription WHERE user = %s', (email, ))
+    subscriptions = DBconnect.select_query(connect,'select thread FROM subscription WHERE user = %s', (email, ))
     for el in subscriptions:
         s_list.append(el[0])
     return s_list

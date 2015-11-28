@@ -6,10 +6,10 @@ import MySQLdb
 from api import common
 
 
-def save_forum(name, short_name, user):
-    DBconnect.update_query('INSERT INTO forum (name, short_name, user) VALUES (%s, %s, %s)',
+def save_forum(connect,name, short_name, user):
+    DBconnect.update_query(connect,'INSERT INTO forum (name, short_name, user) VALUES (%s, %s, %s)',
                                (name, short_name, user, ))
-    forum = DBconnect.select_query(
+    forum = DBconnect.select_query(connect,
             'select id, name, short_name, user FROM forum WHERE short_name = %s', (short_name, )
         )
     return forum_description(forum)
@@ -26,8 +26,8 @@ def forum_description(forum):
     return response
 
 
-def details(short_name, related):
-    forum = DBconnect.select_query(
+def details(connect,short_name, related):
+    forum = DBconnect.select_query(connect,
         'select id, name, short_name, user FROM forum WHERE short_name = %s LIMIT 1;', (short_name, )
     )
     if len(forum) == 0:
@@ -35,27 +35,11 @@ def details(short_name, related):
     forum = forum_description(forum)
 
     if "user" in related:
-        forum["user"] = users.details(forum["user"])
+        forum["user"] = users.details(connect,forum["user"])
     return forum
 
 
-#def details_in(in_str):
-#    query = "SELECT id, name, short_name, user FROM forum WHERE short_name IN (%s);"
-#    forums = DBconnect.select_query(query, (in_str, ))
-#    forum_list = {}
-#    print(forums)
-#    for forum in forums:
-#        forum = {
-#            'id': forum[0],
-#            'name': forum[1],
-#            'short_name': forum[2],
-##            'user': forum[3]
-#       }
-#        forum_list[forum['short_name']] = forum
-#    return forum_list
-
-
-def list_users(short_name, optional):
+def list_users(connect,short_name, optional):
     query = "SELECT user.id, user.email, user.name, user.username, user.isAnonymous, user.about FROM user " \
         "WHERE user.email IN (SELECT DISTINCT user FROM post WHERE forum = %s)"
     if "since_id" in optional:
@@ -64,8 +48,8 @@ def list_users(short_name, optional):
         query += " ORDER BY user.name " + optional["order"]
     if "limit" in optional:
         query += " LIMIT " + str(optional["limit"])
-    connection = DBconnect.connect()
-    cursor = connection.cursor(MySQLdb.cursors.DictCursor)
+ 
+    cursor = connect.cursor(MySQLdb.cursors.DictCursor)
     cursor.execute(query, (short_name, ))
     users_tuple = [i for i in cursor.fetchall()]
 
@@ -78,5 +62,4 @@ def list_users(short_name, optional):
 
         user_sql.update({'following': following, 'followers': followers, 'subscriptions': sub})
     cursor.close()
-    connection.close()
     return users_tuple

@@ -9,39 +9,18 @@ Helper class to manipulate with users.
 """
 
 
-def add_follow(email1, email2):
-    DBconnect.exist(entity="user", identifier="email", value=email1)
-    DBconnect.exist(entity="user", identifier="email", value=email2)
-
-    if email1 == email2:
-        raise Exception("User with email=" + email1 + " can't follow himself")
-
-    follows = DBconnect.select_query(
-        'SELECT id FROM follower WHERE follower = %s AND followee = %s', (email1, email2, )
-    )
-
-    if len(follows) == 0:
-        DBconnect.update_query('INSERT INTO follower (follower, followee) VALUES (%s, %s)', (email1, email2, ))
-
-    user = users.details(email1)
+def add_follow(connect,email1, email2):
+    DBconnect.update_query(connect,'INSERT INTO follower (follower, followee) VALUES (%s, %s)', (email1, email2, ))
+    user = users.details(connect,email1)
     return user
 
 
-def remove_follow(email1, email2):
-    follows = DBconnect.select_query(
-        'SELECT id FROM follower WHERE follower = %s AND followee = %s', (email1, email2, )
-    )
-
-    if len(follows) != 0:
-        DBconnect.update_query('DELETE FROM follower WHERE follower = %s AND followee = %s', (email1, email2, ))
-    else:
-        raise Exception("No such following")
-
-    return users.details(email1)
+def remove_follow(connect,email1, email2):
+    DBconnect.update_query(connect,'DELETE FROM follower WHERE follower = %s AND followee = %s', (email1, email2, ))
+    return users.details(connect,email1)
 
 
-def followers_list(email, type, params):
-    DBconnect.exist(entity="user", identifier="email", value=email)
+def followers_list(connect,email, type, params):
     if type == "follower":
         where = "followee"
     if type == "followee":
@@ -59,11 +38,11 @@ def followers_list(email, type, params):
     if "limit" in params:
         query += " LIMIT " + str(params["limit"])
 
-    followers_ids_tuple = DBconnect.select_query(query=query, params=(email, ))
+    followers_ids_tuple = DBconnect.select_query(connect=connect,query=query, params=(email, ))
 
     f_list = []
     for id in followers_ids_tuple:
         id = id[0]
-        f_list.append(users.details(email=id))
+        f_list.append(users.details(connect=connect,email=id))
 
     return f_list

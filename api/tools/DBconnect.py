@@ -3,46 +3,34 @@ __author__ = 'IS'
 import MySQLdb as db
 
 def connect():
-	try:
-		con = db.connect(host="127.0.0.1",
+	return db.connect(host="localhost",
                 	          user="root",
-                        	  passwd="said1995",
-                          	db="forumdb",
+                        	  passwd="12345",
+                          	db="forumdbtest",
                           	charset="utf8")
-	except db.Error:
-		raise db.Error("Error connection")
-	return con
 
-# Execute update query
-def update_query(query, params):
+def update_query(connect,query, params):
     try:
-        con = connect()
-        cursor = con.cursor()
+        cursor = connect.cursor()
         cursor.execute(query, params)
         inserted_id = cursor.lastrowid
-        con.commit()
+        connect.commit()
         cursor.close()
-        con.close()
     except db.Error:
-        con.rollback()
+        connect.rollback()
         cursor.close()
-        con.close()
-        raise Exception("5")
+        return "Ituser"
     return inserted_id
 
-
-# Execute query
-# Returns tuple!
-def select_query(query, params):
+def select_query(connect,query, params):
     try:
-        con = connect()
-        cursor = con.cursor()
+        cursor = connect.cursor()
         cursor.execute(query, params)
         result = cursor.fetchall()
         cursor.close()
-        con.close()
     except db.Error:
-        raise db.Error("Database error in usual query")
+        cursor.close()
+	raise db.Error("Database error in usual query")
     return result
 
 def select_query_dict(query,params):
@@ -57,20 +45,13 @@ def select_query_dict(query,params):
         raise db.Error("Database error in dict query")
     return result
 
-# Check if something exists
-def exist(entity, identifier, value):
-    if not len(select_query('SELECT  id FROM ' + entity + ' WHERE ' + identifier + '=%s', (value, ))):
-        raise Exception("No such element in " + entity + " with " + identifier + "=" + str(value))
-    return
-
-
-def execute(query):
-    con = connect()
-    cursor = con.cursor()
-    cursor.execute(query)
-    con.commit()
-    cursor.close()
-    con.close()
-    # except db.Error:
-    #     raise db.Error("Database error in update query.")
+def execute(connect,query):
+    try:
+        cursor = connect.cursor()
+        cursor.execute(query)
+        connect.commit()
+        cursor.close()
+    except db.Error:
+        connect.rollback()
+	cursor.close()
     return
