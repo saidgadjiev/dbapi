@@ -13,9 +13,12 @@ CREATE TABLE IF NOT EXISTS `forumdb`.`user` (
   `isAnonymous` TINYINT(1) UNSIGNED NULL DEFAULT 0,
   `about` TEXT NULL,
   `name` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`email`),
-  INDEX email_name (email, name))
+  PRIMARY KEY (`id`, `email`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC),
+  INDEX `reverse` (`email` ASC, `id` ASC),
+  UNIQUE INDEX `id_desc` (`id` DESC, `email` ASC),
+  INDEX `reverse_desc` (`email` ASC, `id` DESC))
 ENGINE = InnoDB;
 
 
@@ -29,8 +32,9 @@ CREATE TABLE IF NOT EXISTS `forumdb`.`forum` (
   `name` VARCHAR(145) NOT NULL,
   `user` VARCHAR(45) NOT NULL,
   `short_name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`id`),
-	UNIQUE KEY (`short_name`))
+  PRIMARY KEY (`id`, `name`, `short_name`),
+  INDEX `fk_Forums_Users1_idx` (`user` ASC),
+  UNIQUE INDEX `short_name_UNIQUE` (`short_name` ASC, `id` ASC))
 ENGINE = InnoDB;
 
 
@@ -53,11 +57,11 @@ CREATE TABLE IF NOT EXISTS `forumdb`.`thread` (
   `dislikes` INT UNSIGNED NOT NULL DEFAULT 0,
   `points` INT NOT NULL DEFAULT 0,
   `posts` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY (`title`),
-	KEY (`user`),
-  KEY(`slug`),
-  KEY(`forum`))
+  PRIMARY KEY (`id`, `user`, `forum`),
+  INDEX `fk_Threads_Forums1_idx` (`forum` ASC),
+  INDEX `fk_Threads_Users1_idx` (`user` ASC),
+  INDEX `date_order` (`date` ASC, `id` ASC),
+  INDEX `date_order_rev` (`date` DESC, `id` ASC))
 ENGINE = InnoDB;
 
 
@@ -82,13 +86,13 @@ CREATE TABLE IF NOT EXISTS `forumdb`.`post` (
   `likes` INT UNSIGNED NOT NULL DEFAULT 0,
   `dislikes` INT UNSIGNED NOT NULL DEFAULT 0,
   `points` INT NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_date` (`user`, `date`),
-	INDEX (`forum`),
-  KEY (`thread`),
-	INDEX `thread_date` (`thread`, `date`),
-  INDEX `forum_user` (`forum`, `user`),
-  INDEX `forum_date` (`forum`, `date`))
+  PRIMARY KEY (`id`, `thread`, `user`, `forum`),
+  INDEX `fk_Posts_Threads1_idx` (`thread` ASC),
+  INDEX `fk_Posts_Users1_idx` (`user` ASC),
+  INDEX `fk_Posts_Posts1_idx` (`parent` ASC),
+  INDEX `fk_Posts_Forums1_idx` (`forum` ASC),
+  INDEX `date_ordering` (`date` DESC, `id` ASC),
+  INDEX `date_order_rev` (`date` DESC, `id` ASC))
 ENGINE = InnoDB;
 
 
@@ -102,7 +106,9 @@ CREATE TABLE IF NOT EXISTS `forumdb`.`subscription` (
   `user` VARCHAR(45) NOT NULL,
   `thread` INT UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `user_thread` (`user`, `thread`))
+  INDEX `fk_Subscriprions_Users1_idx` (`user` ASC),
+  INDEX `fk_Subscriprions_Threads1_idx` (`thread` ASC),
+  UNIQUE INDEX `subscription` (`user` ASC, `thread` ASC))
 ENGINE = InnoDB;
 
 
