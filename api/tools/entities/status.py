@@ -15,5 +15,4 @@ def status():
 		'forum'  : resp[2],
 		'post'   : resp[3]
 	}
-        con.close()
 	return statusResponse

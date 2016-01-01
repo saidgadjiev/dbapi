@@ -19,9 +19,7 @@ def create():
         forum = forums.save_forum(connect=con,name=content["name"], short_name=content["short_name"],
                                   user=content["user"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": forum})
 
 
@@ -35,9 +33,7 @@ def details():
         choose_required(data=get_params, required=required_data)
         forum = forums.details(connect=con,short_name=get_params["forum"], related=related)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": forum})
 
 
@@ -53,9 +49,7 @@ def list_threads():
         threads_l = threads.thread_list(connect=con,entity="forum", identifier=content["forum"],
                                          related=related, params=optional)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": threads_l})
 
 
@@ -72,9 +66,7 @@ def list_posts():
         posts_l = posts.posts_list(connect=con, entity="forum", params=optional, identifier=content["forum"],
                                     related=related)
     except Exception as e:
-         con.close()
          return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": posts_l})
 
 
@@ -88,7 +80,5 @@ def list_users():
         choose_required(data=content, required=required_data)
         users_l = forums.list_users(con,content["forum"], optional)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": users_l})

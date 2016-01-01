@@ -9,5 +9,4 @@ def clear():
     for table in tables:
         DBconnect.execute(con,"TRUNCATE TABLE %s;" % table)
     DBconnect.execute(con,"SET global foreign_key_checks = 1;")
-    con.close()
     return

@@ -19,11 +19,8 @@ def create():
                                about=request_data["about"], name=request_data["name"], optional=optional)
     except Exception as e:
         if e.message == "5":
-            con.close()           
             return json.dumps({"code": 5, "response": (e.message)})
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": user})
 
 
@@ -36,9 +33,7 @@ def details():
         choose_required(data=request_data, required=required_data)
         user_details = users.details(connect=con,email=request_data["user"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": user_details})
 
 
@@ -51,9 +46,7 @@ def follow():
         choose_required(data=request_data, required=required_data)
         following = followers.add_follow(connect=con,email1=request_data["follower"], email2=request_data["followee"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": following})
 
 
@@ -66,9 +59,7 @@ def unfollow():
         choose_required(data=request_data, required=required_data)
         following = followers.remove_follow(connect=con,email1=request_data["follower"], email2=request_data["followee"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": following})
 
 
@@ -82,9 +73,7 @@ def list_followers():
         choose_required(data=request_data, required=required_data)
         follower_l = followers.followers_list(connect=con,email=request_data["user"], type="follower", params=followers_param)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": follower_l})
 
 
@@ -112,9 +101,7 @@ def list_posts():
         choose_required(data=request_data, required=required_data)
         posts_l = posts.posts_list(connect=con,entity="user", params=optional, identifier=request_data["user"], related=[])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": posts_l})
 
 
@@ -127,7 +114,5 @@ def update():
         choose_required(data=request_data, required=required_data)
         user = users.update_user(connect=con,email=request_data["user"], name=request_data["name"], about=request_data["about"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": user})

@@ -19,9 +19,7 @@ def create():
                         message=content["message"], user=content["user"],
                         forum=content["forum"], optional=optional)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})
 
 
@@ -35,9 +33,7 @@ def details():
         choose_required(data=content, required=required_data)
         post = posts.details(con,content["post"], related=related)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})
 
 
@@ -53,16 +49,13 @@ def post_list():
             identifier = content["thread"]
             entity = "thread"
         except Exception as e:
-            con.close()
             return json.dumps({"code": 1, "response": (e.message)})
 
     optional = intersection(request=content, values=["limit", "order", "since"])
     try:
         p_list = posts.posts_list(connect=con,entity=entity, params=optional, identifier=identifier, related=[])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": p_list})
 
 
@@ -76,9 +69,7 @@ def remove():
         post = posts.remove_restore(connect=con,post_id=content["post"], status=1)
         threads.dec_posts_count(con,content["post"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})
 
 
@@ -92,9 +83,7 @@ def restore():
         threads.inc_posts_count(con,content["post"])
         post = posts.remove_restore(connect=con,post_id=content["post"], status=0)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})
 
 
@@ -107,9 +96,7 @@ def update():
         choose_required(data=content, required=required_data)
         post = posts.update(connect=con,update_id=content["post"], message=content["message"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})
 
 
@@ -122,7 +109,5 @@ def vote():
         choose_required(data=content, required=required_data)
         post = posts.vote(connect = con,vote_id=content["post"], vote_type=content["vote"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": post})

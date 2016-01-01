@@ -138,7 +138,7 @@ def remove_restore(connect,thread_id, status):
     if status == 1:
         posts = 0
     else:
-        posts = DBconnect.select_query(connect,"SELECT COUNT(id) FROM post WHERE thread = %s", (thread_id))[0][0]
+        posts = DBconnect.select_query(connect,"SELECT COUNT(id) FROM post WHERE thread = %s", str(thread_id))[0][0]
     DBconnect.update_query(connect,"UPDATE thread SET isDeleted = %s, posts = %s WHERE id = %s", (status,posts,thread_id))
     DBconnect.update_query(connect,"UPDATE post SET isDeleted = %s WHERE thread = %s", (status,thread_id))
     response = {

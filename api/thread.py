@@ -21,7 +21,6 @@ def create():
                                      message=content["message"],
                                      slug=content["slug"], optional=optional)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 0, "response": {
             'date': content["date"],
             'forum': content["forum"],
@@ -34,7 +33,6 @@ def create():
             'user': content["user"]
         }
         })
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -45,15 +43,12 @@ def details():
     required_data = ["thread"]
     related = related_exists(content)
     if 'thread' in related:
-        con.close()
         return json.dumps({"code": 3, "response": "error"})
     try:
         choose_required(data=content, required=required_data)
         thread = threads.details(connect=con,id=content["thread"], related=related)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -67,9 +62,7 @@ def vote():
         print("VOTE START")
         thread = threads.vote(connect=con,id=content["thread"], vote=content["vote"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -82,9 +75,7 @@ def subscribe():
         choose_required(data=content, required=required_data)
         subscription = subscriptions.save_subscription(connect=con,email=content["user"], thread_id=content["thread"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": subscription})
 
 
@@ -98,9 +89,7 @@ def unsubscribe():
         subscription = subscriptions.remove_subscription(connect=con,email=content["user"],
                                                          thread_id=content["thread"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": subscription})
 
 
@@ -113,9 +102,7 @@ def open():
         choose_required(data=content, required=required_data)
         thread = threads.open_close_thread(connect = con,id=content["thread"], isClosed=0)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -128,9 +115,7 @@ def close():
         choose_required(data=content, required=required_data)
         thread = threads.open_close_thread(connect = con,id=content["thread"], isClosed=1)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -144,9 +129,7 @@ def update():
         thread = threads.update_thread(connect=con,id=content["thread"], slug=content["slug"],
                                        message=content["message"])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -159,9 +142,7 @@ def remove():
         choose_required(data=content, required=required_data)
         thread = threads.remove_restore(connect = con,thread_id=content["thread"], status=1)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -174,9 +155,7 @@ def restore():
         choose_required(data=content, required=required_data)
         thread = threads.remove_restore(connect=con,thread_id=content["thread"], status=0)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": thread})
 
 
@@ -192,15 +171,12 @@ def thread_list():
             identifier = content["user"]
             entity = "user"
         except KeyError:
-            con.close()
             return json.dumps({"code": 1, "response": "Any methods?"})
     optional = intersection(request=content, values=["limit", "order", "since"])
     try:
         t_list = threads.thread_list(connect = con,entity=entity, identifier=identifier, related=[], params=optional)
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": t_list})
 
 
@@ -215,7 +191,5 @@ def list_posts():
         choose_required(data=content, required=required_data)
         p_list = posts.posts_list(connect=con,entity="thread", params=optional, identifier=content["thread"], related=[])
     except Exception as e:
-        con.close()
         return json.dumps({"code": 1, "response": (e.message)})
-    con.close()
     return json.dumps({"code": 0, "response": p_list})
